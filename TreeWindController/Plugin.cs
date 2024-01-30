@@ -13,6 +13,8 @@ using System.Text;
 using UnityEngine;
 using Game.Buildings;
 using TreeWindController.Systems;
+using Colossal.UI;
+using HookUILib.Core;
 
 #if BEPINEX_V6
     using BepInEx.Unity.Mono;
@@ -48,6 +50,15 @@ namespace TreeWindController {
         [HarmonyPatch(typeof(SystemOrder), nameof(SystemOrder.Initialize))]
         [HarmonyPostfix]
         private static void InjectSystems(UpdateSystem updateSystem) => Mod.Instance.OnCreateWorld(updateSystem);
+    }
 
+    public class TreeWindControllerUI : UIExtension {
+        public new readonly string extensionID = "tree-wind-controller";
+        public new readonly string extensionContent;
+        public new readonly ExtensionType extensionType = ExtensionType.Panel;
+
+        public TreeWindControllerUI() {
+            this.extensionContent = this.LoadEmbeddedResource("TreeWindController.dist.bundle.js");
+        }
     }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "city-monitor",
+  "name": "tree-wind-controller",
   "version": "0.3.0",
-  "description": "Displays a little window so you can see the most important details of your city without having to open up any panels manually.",
+  "description": "",
   "main": "build.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
