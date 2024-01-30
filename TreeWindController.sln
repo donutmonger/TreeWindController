@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TreeWindController", "TreeWindController\TreeWindController.csproj", "{53D2B4E9-2E9F-4CBA-8CF8-B253CF36C52E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TreeWindController", "TreeWindController.csproj", "{53D2B4E9-2E9F-4CBA-8CF8-B253CF36C52E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
