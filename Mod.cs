@@ -60,7 +60,6 @@ namespace TreeWindController {
 
             updateSystem.World.GetOrCreateSystem<SettingsSystem>();
             updateSystem.World.GetOrCreateSystem<SettingsUISystem>();
-            updateSystem.UpdateBefore<SettingsSystem>(SystemUpdatePhase.Rendering);
             updateSystem.UpdateAt<SettingsUISystem>(SystemUpdatePhase.UIUpdate);
         }
 

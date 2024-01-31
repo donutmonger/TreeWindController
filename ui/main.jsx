@@ -7,6 +7,7 @@ const $SettingsPage = ({react, data}) => {
         engine.trigger('tree-wind-controller.set_wind_strength', val)
     }
     return <div>
+        <p>Wind Strength:</p>
         <$Slider react={react} value={data} onValueChanged={(val) => updateData("wind_strength", val)} />
     </div>
 }
@@ -17,6 +18,7 @@ const $TreeWindController = ({react}) => {
 
     const style = {
         height: "auto",
+        width: "600rem",
     }
 
     return <div>

@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Text;
 using Game.UI;
 using Colossal.Annotations;
+using Colossal.Logging;
 using Colossal.UI.Binding;
 
 namespace TreeWindController.Systems {
 
     class SettingsUISystem : UISystemBase {
+        private ILog _log;
         private string kGroup = "tree-wind-controller";
         protected override void OnCreate() {
             base.OnCreate();
+
+            _log = Mod.Instance.Log;
+            _log.Info("SettingsUISystem.OnCreate");
 
             this.AddUpdateBinding(new GetterValueBinding<float>(this.kGroup, "wind_strength", () => {
                 var strength = SettingsSystem.Instance.strength;
