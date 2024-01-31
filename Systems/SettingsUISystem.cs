@@ -13,14 +13,18 @@ namespace TreeWindController.Systems {
             base.OnCreate();
 
             this.AddUpdateBinding(new GetterValueBinding<float>(this.kGroup, "wind_strength", () => {
-                return SettingsSystem.Instance.strength.value;
+                var strength = SettingsSystem.Instance.strength;
+
+                return 100f * (strength.value - strength.min) / (strength.max - strength.min);
             }));
-            //this.AddUpdateBinding(new GetterValueBinding<ImmutableDictionary<string, MeterSetting>>(kGroup, "meters", () => {
-            //    return meters;
-            //}, new MyDictionaryWriter<string, MeterSetting>()));
+
+            this.AddBinding(new TriggerBinding<float>(kGroup, "set_wind_strength", new Action<float>(SetWindStrengthPercent)));
+        }
 
 
-            //this.AddBinding(new TriggerBinding<string, bool>(kGroup, "toggle_visibility", new Action<string, bool>(ToggleVisibility)));
+        private void SetWindStrengthPercent(float strengthPercent) {
+            var strength = SettingsSystem.Instance.strength;
+            SettingsSystem.Instance.strength.value = strength.min + strengthPercent/100f * (strength.max - strength.min);
         }
     }
 }
