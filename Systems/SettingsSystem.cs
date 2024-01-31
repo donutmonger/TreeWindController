@@ -11,6 +11,7 @@ namespace TreeWindController.Systems {
         private ILog _log;
 
         public ClampedFloatParameter strength;
+        public ClampedFloatParameter direction;
 
         public static SettingsSystem Instance { get; private set; }
 
@@ -23,6 +24,7 @@ namespace TreeWindController.Systems {
             _log.Info("SettingsSystem.OnCreate");
 
             strength = new ClampedFloatParameter(0f, 0f, 5f);
+            direction = new ClampedFloatParameter(65f, 0f, 360f);
         }
 
         protected override void OnUpdate() {

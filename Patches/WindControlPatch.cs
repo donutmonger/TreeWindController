@@ -27,6 +27,7 @@ namespace TreeWindController.Patches {
             // TODO instead of going this way, we should be able to get the full WindVolumeComponent from the settings system
             __1.windGlobalStrengthScale = settings.strength;
             __1.windGlobalStrengthScale2 = settings.strength;
+            __1.windDirection = settings.direction;
 
             // Pass through to the original method
             return true;
