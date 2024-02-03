@@ -33,10 +33,10 @@ namespace TreeWindController.Systems {
 
             // Default values taken from WindVolumeComponent field defaults.
             strength = new ClampedFloatParameter(0f, 0f, 5f);
-            strengthVariancePeriod  = new ClampedFloatParameter(6f, 0.01f, 20f);
+            strengthVariancePeriod  = new ClampedFloatParameter(6f, 0.01f, 120f);
             direction = new ClampedFloatParameter(65f, 0f, 360f);
             directionVariance = new ClampedFloatParameter(25f, 0f, 180f);
-            directionVariancePeriod = new ClampedFloatParameter(15f, 0.01f, 20f);
+            directionVariancePeriod = new ClampedFloatParameter(15f, 0.01f, 120f);
         }
 
         protected override void OnUpdate() {

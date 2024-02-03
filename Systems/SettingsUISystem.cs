@@ -164,7 +164,6 @@ namespace TreeWindController.Systems {
                     SettingsSystem.Instance.directionVariance.value = setClampedValuePercent(SettingsSystem.Instance.directionVariance, value);
                     break;
 
-
                 case "wind_direction_variance_period":
                     SettingsSystem.Instance.directionVariancePeriod.value = value;
                     break;
