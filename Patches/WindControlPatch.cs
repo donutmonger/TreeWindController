@@ -24,10 +24,21 @@ namespace TreeWindController.Patches {
                 return true;
             }
 
+            if (settings.disableAllWind) {
+                __1.windGlobalStrengthScale.Override(0);
+                __1.windGlobalStrengthScale2.Override(0);
+                return true;
+            }
+
             // TODO instead of going this way, we should be able to get the full WindVolumeComponent from the settings system
-            __1.windGlobalStrengthScale = settings.strength;
-            __1.windGlobalStrengthScale2 = settings.strength;
-            __1.windDirection = settings.direction;
+            __1.windGlobalStrengthScale.Override(settings.strength.value);
+            __1.windGlobalStrengthScale2.Override(settings.strength.value);
+            __1.windTreeBaseStrengthVariancePeriod.Override(settings.strengthVariancePeriod.value);
+
+            __1.windDirection.Override(settings.direction.value);
+            __1.windDirectionVariance.Override(settings.directionVariance.value);
+            __1.windDirectionVariancePeriod.Override(settings.directionVariancePeriod.value);
+                
 
             // Pass through to the original method
             return true;

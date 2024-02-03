@@ -6,13 +6,62 @@ using Colossal.Annotations;
 using Colossal.Logging;
 using Colossal.UI.Binding;
 using UnityEngine.Rendering;
+using UnityEngine;
 
 namespace TreeWindController.Systems {
+
+    public class Checkbox: IJsonWritable {
+        public string label;
+        public bool checkedValue;
+
+        public void Write(IJsonWriter writer) {
+            writer.TypeBegin(this.GetType().FullName);
+
+            writer.PropertyName("label");
+            writer.Write(label);
+
+            writer.PropertyName("checkedValue");
+            writer.Write(checkedValue);
+
+            writer.TypeEnd();
+        }
+    }
+
+    public class Slider : IJsonWritable {
+        public string label;
+        public ClampedFloatParameter value;
+        public bool percentage;
+        public string unit;
+
+        public void Write(IJsonWriter writer) {
+            writer.TypeBegin(this.GetType().FullName);
+
+            writer.PropertyName("label");
+            writer.Write(label);
+
+            // TODO can ClampedFloatParameter just implement this itself?
+            writer.PropertyName("min");
+            writer.Write(value.min);
+
+            writer.PropertyName("max");
+            writer.Write(value.max);
+
+            writer.PropertyName("value");
+            writer.Write(value.value);
+
+            writer.PropertyName("percentage");
+            writer.Write(percentage);
+
+            writer.PropertyName("unit");
+            writer.Write(unit);
+
+            writer.TypeEnd();
+        }
+    }
 
     class SettingsUISystem : UISystemBase {
         private ILog _log;
         private string kGroup = "tree-wind-controller";
-
 
         protected override void OnCreate() {
             base.OnCreate();
@@ -20,27 +69,104 @@ namespace TreeWindController.Systems {
             _log = Mod.Instance.Log;
             _log.Info("SettingsUISystem.OnCreate");
 
+
             this.AddUpdateBinding(
-                new GetterValueBinding<Dictionary<string,float>>(this.kGroup, "get_values", () => {
-                    return new Dictionary<string, float>() {
-                        {"wind_strength", percentageClamped(SettingsSystem.Instance.strength) },
-                        {"wind_direction", SettingsSystem.Instance.direction.value }
-                    };
-                },
-                new MyDictionaryWriter<string, float>())
+                new GetterValueBinding<Dictionary<string,IJsonWritable>>(this.kGroup, "get_values", GetValues,
+                new MyDictionaryWriter<string, IJsonWritable>())
             );
 
+            this.AddBinding(new TriggerBinding<string,bool>(kGroup, "set_bool_value", new Action<string,bool>(SetBoolValue)));
             this.AddBinding(new TriggerBinding<string,float>(kGroup, "set_value", new Action<string,float>(SetValue)));
         }
 
+        private Dictionary<string,IJsonWritable> GetValues() {
+            var fields = new Dictionary<string, IJsonWritable>();
+            fields.Add(
+                "disable_wind", 
+                new Checkbox {
+                    label = "Disable All Wind",
+                    checkedValue = SettingsSystem.Instance.disableAllWind,
+                }
+            );
+            fields.Add(
+                "wind_strength", 
+                new Slider {
+                    label = "Wind Strength", 
+                    value = new ClampedFloatParameter(percentageClamped(SettingsSystem.Instance.strength), 0f, 100f), 
+                    percentage = true, 
+                    unit = "%"
+                }
+            );
+            fields.Add(
+                "wind_strength_variance_period", 
+                new Slider {
+                    label = "Wind Strength Variance Period", 
+                    value = SettingsSystem.Instance.strengthVariancePeriod,
+                    percentage = true, 
+                    unit = "s"
+                }
+            );
+            fields.Add(
+                "wind_direction", 
+                new Slider {
+                    label = "Wind Direction", 
+                    value = SettingsSystem.Instance.direction, 
+                    percentage = false, 
+                    unit = "°"
+                }
+            );
+            fields.Add(
+                "wind_direction_variance", 
+                new Slider {
+                    label = "Wind Direction Variance", 
+                    value = new ClampedFloatParameter(percentageClamped(SettingsSystem.Instance.directionVariance), 0f, 100f), 
+                    percentage = true, 
+                    unit = "%",
+                }
+            );
+
+            fields.Add(
+                "wind_direction_variance_period", 
+                new Slider {
+                    label = "Wind Direction Variance Period", 
+                    value = SettingsSystem.Instance.directionVariancePeriod,
+                    percentage = false, 
+                    unit = "s",
+                }
+            );
+            return fields;
+
+        }
+
+        private void SetBoolValue(string key, bool value) {
+            switch (key) {
+                case "disable_wind":
+                    SettingsSystem.Instance.disableAllWind = value;
+                    break;
+            }
+        }
 
         private void SetValue(string key, float value) {
             switch (key) {
                 case "wind_strength":
                     SettingsSystem.Instance.strength.value = setClampedValuePercent(SettingsSystem.Instance.strength, value);
                     break;
+
+                case "wind_strength_variance_period":
+                    SettingsSystem.Instance.strengthVariancePeriod.value = value;
+                    break;
+
                 case "wind_direction":
                     SettingsSystem.Instance.direction.value = value;
+                    break;
+
+                case "wind_direction_variance":
+                    SettingsSystem.Instance.directionVariance.value = setClampedValuePercent(SettingsSystem.Instance.directionVariance, value);
+                    break;
+
+
+                case "wind_direction_variance_period":
+                    SettingsSystem.Instance.directionVariancePeriod.value = value;
                     break;
 
             }
