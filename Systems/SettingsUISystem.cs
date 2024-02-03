@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace TreeWindController.Systems {
 
+    // TODO move these to separate files or package, they can be treated as generic UI elements
     public class Checkbox: IJsonWritable {
         public string label;
         public bool checkedValue;
@@ -138,6 +139,7 @@ namespace TreeWindController.Systems {
 
         }
 
+        // TODO make these setters more dynamic, we shouldn't need two mappings between field key and value get/set
         private void SetBoolValue(string key, bool value) {
             switch (key) {
                 case "disable_wind":

@@ -24,23 +24,23 @@ namespace TreeWindController.Patches {
                 return true;
             }
 
-            if (settings.disableAllWind) {
-                __1.windGlobalStrengthScale.Override(0);
-                __1.windGlobalStrengthScale2.Override(0);
+            settings.updateWindVolumeComponent(__1);
+            // Pass through to the original method
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(WindControl), "UpdateCPUData")]
+    public class WindControl_UpdateCPUDataPatch {
+
+        public static bool Prefix(WindControl __instance, WindVolumeComponent __1) {
+            // TODO this is kind of gross, is there a nicer way to pass this ref through to the patch?
+            var settings = SettingsSystem.Instance;
+            if (settings == null) {
                 return true;
             }
 
-            __1.windGlobalStrengthScale.Override(settings.strength.value);
-            __1.windGlobalStrengthScale2.Override(settings.strength.value);
-
-            // TODO this doesn't seem like it's doing anything
-            __1.windTreeBaseStrengthVariancePeriod.Override(settings.strengthVariancePeriod.value);
-
-            __1.windDirection.Override(settings.direction.value);
-            __1.windDirectionVariance.Override(settings.directionVariance.value);
-            __1.windDirectionVariancePeriod.Override(settings.directionVariancePeriod.value);
-                
-
+            settings.updateWindVolumeComponent(__1);
             // Pass through to the original method
             return true;
         }
