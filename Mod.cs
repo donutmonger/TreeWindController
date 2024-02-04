@@ -5,15 +5,12 @@ using System.Text;
 namespace TreeWindController {
     using System.IO;
     using System.Reflection;
-    using Colossal.IO.AssetDatabase;
     using Colossal.Logging;
     using Game;
     using Game.Modding;
-    using Game.Rendering;
     using Game.SceneFlow;
     using Game.UI;
     using TreeWindController.Systems;
-    using Unity.Entities;
 
     /// <summary>
     /// The base mod class for instantiation by the game.
@@ -61,6 +58,10 @@ namespace TreeWindController {
             updateSystem.World.GetOrCreateSystem<SettingsSystem>();
             updateSystem.World.GetOrCreateSystem<SettingsUISystem>();
             updateSystem.UpdateAt<SettingsUISystem>(SystemUpdatePhase.UIUpdate);
+
+            // Add mod UI icons to UI resource handler.
+            GameUIResourceHandler uiResourceHandler = GameManager.instance.userInterface.view.uiSystem.resourceHandler as GameUIResourceHandler;
+            uiResourceHandler?.HostLocationsMap.Add("tree-wind-controller", new System.Collections.Generic.List<string> { Path.GetDirectoryName(typeof(Plugin).Assembly.Location) + "/" });
         }
 
         /// <summary>

@@ -32,7 +32,6 @@
 	-->
 	<PropertyGroup>
 		<Cities2_Location>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</Cities2_Location>
-		<Build_Location>C:\Users\Cgameworld\AppData\Roaming\r2modmanPlus-local\CitiesSkylines2\profiles\modTest</Build_Location>
     <!--
     <Build_Location>C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II</Build_Location>
     -->
@@ -43,9 +42,10 @@
 		above needs to be uncommented for this to work
 	-->
 	<ItemGroup>
-        <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Colossal.*.dll" Private="False" />
+        <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Colossal*.dll" Private="False" />
         <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Game.dll" Private="False" />
         <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Unity.*.dll" Private="False" />
+        <Reference Include="$(Cities2_Location)\Cities2_Data\Managed\Cohtml.*.dll" Private="False" />
 	</ItemGroup>
 
 	<!--

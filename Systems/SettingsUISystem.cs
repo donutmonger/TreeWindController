@@ -99,14 +99,24 @@ namespace TreeWindController.Systems {
                 }
             );
             fields.Add(
+                "wind_strength_variance", 
+                new Slider {
+                    label = "Wind Strength Variance", 
+                    value = new ClampedFloatParameter(percentageClamped(SettingsSystem.Instance.strengthVariance), 0f, 100f),
+                    percentage = true, 
+                    unit = "%"
+                }
+            );
+            fields.Add(
                 "wind_strength_variance_period", 
                 new Slider {
                     label = "Wind Strength Variance Period", 
                     value = SettingsSystem.Instance.strengthVariancePeriod,
-                    percentage = true, 
-                    unit = "s"
+                    percentage = false, 
+                    unit = "s",
                 }
             );
+
             fields.Add(
                 "wind_direction", 
                 new Slider {
@@ -125,7 +135,6 @@ namespace TreeWindController.Systems {
                     unit = "%",
                 }
             );
-
             fields.Add(
                 "wind_direction_variance_period", 
                 new Slider {
@@ -152,6 +161,10 @@ namespace TreeWindController.Systems {
             switch (key) {
                 case "wind_strength":
                     SettingsSystem.Instance.strength.value = setClampedValuePercent(SettingsSystem.Instance.strength, value);
+                    break;
+
+                case "wind_strength_variance":
+                    SettingsSystem.Instance.strengthVariance.value = setClampedValuePercent(SettingsSystem.Instance.strengthVariance, value);
                     break;
 
                 case "wind_strength_variance_period":

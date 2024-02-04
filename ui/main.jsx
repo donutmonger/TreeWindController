@@ -4,20 +4,17 @@ import {$Panel, useDataUpdate} from 'hookui-framework'
 const panelID = "tree-wind-controller";
 
 const $SettingsPage = ({react, data}) => {
-    const setFloatValue = (field, val) => {
-        engine.trigger(panelID + ".set_value", field, val);
-    }
     const setBoolValue = (field, val) => {
         engine.trigger(panelID + ".set_bool_value", field, val);
     }
-
-    //console.log(JSON.stringify(data["disable_wind"]));
+    const setFloatValue = (field, val) => {
+        engine.trigger(panelID + ".set_value", field, val);
+    }
 
     const slidersDisabled = data["disable_wind"]?.checkedValue;
 
     let keys = Object.keys(data)
     const meters = keys.map((k) => {
-        // TODO check "__Type" field to determine which element to render
         const { __Type } = data[k]
 
         switch (__Type) {
@@ -49,7 +46,7 @@ const $TreeWindController = ({react}) => {
     }
 
     // TODO make this dynamic
-    const numSliders = 5;
+    const numSliders = 6;
     const numCheckboxes = 1;
 
     const size = {
@@ -75,8 +72,7 @@ const $TreeWindController = ({react}) => {
 window._$hookui.registerPanel({
     id: panelID,
     name: "Tree Wind Controller",
-    // TODO find a better icon, maybe https://windicss.org/assets/logo.svg?
-    icon: "Media/Game/Icons/Trees.svg",
+    icon: "coui://" + panelID + "/logo.svg",
     component: $TreeWindController
 })
 

@@ -4,8 +4,10 @@ using System.Text;
 using Colossal.Logging;
 using Game;
 using Game.Rendering;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using Unity.Mathematics;
 
 namespace TreeWindController.Systems {
     // TODO this doesn't need to be a system, it's just a settings holder and helper for applying changes to the WindVolumeComponent
@@ -15,6 +17,7 @@ namespace TreeWindController.Systems {
         public bool disableAllWind;
 
         public ClampedFloatParameter strength;
+        public ClampedFloatParameter strengthVariance;
         public ClampedFloatParameter strengthVariancePeriod;
 
         public ClampedFloatParameter direction;
@@ -33,8 +36,9 @@ namespace TreeWindController.Systems {
 
             disableAllWind = false;
 
-            // Default values taken from WindVolumeComponent field defaults.
-            strength = new ClampedFloatParameter(1f, 0f, 5f);
+            // TODO add separate clamped param for gust strength (it needs different bounds than base)
+            strength = new ClampedFloatParameter(0.25f, 0f, 5f);
+            strengthVariance = new ClampedFloatParameter(0f, 0f, 1f);
             strengthVariancePeriod  = new ClampedFloatParameter(6f, 0.01f, 120f);
             direction = new ClampedFloatParameter(65f, 0f, 360f);
             directionVariance = new ClampedFloatParameter(25f, 0f, 180f);
@@ -43,24 +47,45 @@ namespace TreeWindController.Systems {
 
         protected override void OnUpdate() { }
 
-        public WindVolumeComponent updateWindVolumeComponent(WindVolumeComponent w) {
+        public void updateWindVolumeComponent(WindVolumeComponent w) {
             if (disableAllWind) {
                 w.windGlobalStrengthScale.Override(0);
                 w.windGlobalStrengthScale2.Override(0);
-                return w;
+                return;
             }
 
-            w.windGlobalStrengthScale.Override(strength.value);
-            w.windGlobalStrengthScale2.Override(strength.value);
+            float time = UnityEngine.Time.time;
 
-            // TODO this doesn't seem like it's doing anything, maybe try other strength variance params?
-            w.windTreeBaseStrengthVariancePeriod.Override(strengthVariancePeriod.value);
+            var minStrength = strength.value - strengthVariance.value * strength.value;
+            var maxStrength = strength.value + strengthVariance.value * strength.value;
+
+            // TODO avoid reallocating these curve params every time
+            var strengthAnimation = new AnimationCurveParameter(
+                new AnimationCurve(
+                    new Keyframe(0f, minStrength), 
+                    new Keyframe(strengthVariancePeriod.value, maxStrength), 
+                    new Keyframe(2*strengthVariancePeriod.value, minStrength)
+                )
+            );
+
+            var baseStrength = strengthAnimation.value.Evaluate(time % (2*strengthVariancePeriod.value));
+            var gustStrength = math.min(strength.max, 2 * baseStrength);
+
+            w.windTreeBaseStrength.Override(baseStrength);
+            w.windTreeGustStrength.Override(gustStrength);
+            // TODO avoid reallocating these curve params every time
+            w.windTreeGustStrengthControl = new AnimationCurveParameter(
+                new AnimationCurve(
+                    new Keyframe(0f, 0f), 
+                    new Keyframe(10f, gustStrength)
+                )
+            );
 
             w.windDirection.Override(direction.value);
             w.windDirectionVariance.Override(directionVariance.value);
             w.windDirectionVariancePeriod.Override(directionVariancePeriod.value);
 
-            return w;
+            return;
         }
     }
 }

@@ -8,6 +8,7 @@ build: build-ui
 
 dev-install: build
 	IF not exist $(DEV_INSTALL_DIR) mkdir $(DEV_INSTALL_DIR)
+	copy logo.svg $(DEV_INSTALL_DIR)
 	copy bin\Debug\netstandard2.1\0Harmony.dll $(DEV_INSTALL_DIR)
 	copy bin\Debug\netstandard2.1\TreeWindController.dll $(DEV_INSTALL_DIR)
 
