@@ -7,62 +7,16 @@ using Colossal.Logging;
 using Colossal.UI.Binding;
 using UnityEngine.Rendering;
 using UnityEngine;
+using TreeWindController.UI;
+using UnityEngine.UIElements.Collections;
 
 namespace TreeWindController.Systems {
-
-    // TODO move these to separate files or package, they can be treated as generic UI elements
-    public class Checkbox: IJsonWritable {
-        public string label;
-        public bool checkedValue;
-
-        public void Write(IJsonWriter writer) {
-            writer.TypeBegin(this.GetType().FullName);
-
-            writer.PropertyName("label");
-            writer.Write(label);
-
-            writer.PropertyName("checkedValue");
-            writer.Write(checkedValue);
-
-            writer.TypeEnd();
-        }
-    }
-
-    public class Slider : IJsonWritable {
-        public string label;
-        public ClampedFloatParameter value;
-        public bool percentage;
-        public string unit;
-
-        public void Write(IJsonWriter writer) {
-            writer.TypeBegin(this.GetType().FullName);
-
-            writer.PropertyName("label");
-            writer.Write(label);
-
-            // TODO can ClampedFloatParameter just implement this itself?
-            writer.PropertyName("min");
-            writer.Write(value.min);
-
-            writer.PropertyName("max");
-            writer.Write(value.max);
-
-            writer.PropertyName("value");
-            writer.Write(value.value);
-
-            writer.PropertyName("percentage");
-            writer.Write(percentage);
-
-            writer.PropertyName("unit");
-            writer.Write(unit);
-
-            writer.TypeEnd();
-        }
-    }
-
     class SettingsUISystem : UISystemBase {
         private ILog _log;
         private string kGroup = "tree-wind-controller";
+
+        private Dictionary<string,IJsonWritable> fields;
+        private SettingsSystem _settings;
 
         protected override void OnCreate() {
             base.OnCreate();
@@ -70,120 +24,101 @@ namespace TreeWindController.Systems {
             _log = Mod.Instance.Log;
             _log.Info("SettingsUISystem.OnCreate");
 
+            _settings = World.GetExistingSystemManaged<SettingsSystem>();
 
             this.AddUpdateBinding(
                 new GetterValueBinding<Dictionary<string,IJsonWritable>>(this.kGroup, "get_values", GetValues,
-                new MyDictionaryWriter<string, IJsonWritable>())
+                new NestedDictionaryWriter<string, IJsonWritable>())
             );
 
-            this.AddBinding(new TriggerBinding<string,bool>(kGroup, "set_bool_value", new Action<string,bool>(SetBoolValue)));
-            this.AddBinding(new TriggerBinding<string,float>(kGroup, "set_value", new Action<string,float>(SetValue)));
+            this.AddBinding(
+                new TriggerBinding<string,bool>(kGroup, "set_bool_value", new Action<string,bool>(SetBoolValue))
+            );
+            this.AddBinding(
+                new TriggerBinding<string,float>(kGroup, "set_value", new Action<string,float>(SetFloatValue))
+            );
         }
 
+        // TODO why doesn't this work when just making the dictionary once on OnCreate?
         private Dictionary<string,IJsonWritable> GetValues() {
-            var fields = new Dictionary<string, IJsonWritable>();
-            fields.Add(
-                "disable_wind", 
-                new Checkbox {
-                    label = "Disable All Wind",
-                    checkedValue = SettingsSystem.Instance.disableAllWind,
+            fields = new Dictionary<string, IJsonWritable> {
+                {
+                    "disable_wind",
+                    new Checkbox {
+                        label = "Disable All Wind",
+                        getChecked = new Func<bool>(() => { return _settings.disableAllWind; }),
+                        setChecked = new Action<bool>((bool b) => { _settings.disableAllWind = b; }),
+                    }
+                },
+                {
+                    "wind_strength",
+                    new Slider {
+                        label = "Wind Strength",
+                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strength), 0f, 100f); }),
+                        unit = "%",
+                        setValue = new Action<float>((float f) => { _settings.strength.value = setClampedValuePercent(_settings.strength, f); })
+                    }
+                },
+                {
+                    "wind_strength_variance",
+                    new Slider {
+                        label = "Wind Strength Variance",
+                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strengthVariance), 0f, 100f); }),
+                        unit = "%",
+                        setValue = new Action<float>((float f) => { _settings.strengthVariance.value = setClampedValuePercent(_settings.strengthVariance, f); })
+                    }
+                },
+                {
+                    "wind_strength_variance_period",
+                    new Slider {
+                        label = "Wind Strength Variance Period",
+                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.strengthVariancePeriod; }),
+                        unit = "s",
+                        setValue = new Action<float>((float f) => { _settings.strengthVariancePeriod.value = f; })
+                    }
+                },
+                {
+                    "wind_direction",
+                    new Slider {
+                        label = "Wind Direction",
+                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.direction; }),
+                        unit = "°",
+                        setValue = new Action<float>((float f) => { _settings.direction.value = f; })
+                    }
+                },
+                {
+                    "wind_direction_variance",
+                    new Slider {
+                        label = "Wind Direction Variance",
+                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.directionVariance), 0f, 100f); }),
+                        unit = "%",
+                        setValue = new Action<float>((float f) => { _settings.directionVariance.value = setClampedValuePercent(_settings.directionVariance, f); })
+                    }
+                },
+                {
+                    "wind_direction_variance_period",
+                    new Slider {
+                        label = "Wind Direction Variance Period",
+                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.directionVariancePeriod; }),
+                        unit = "s",
+                        setValue = new Action<float>((float f) => { _settings.directionVariancePeriod.value = f; })
+                    }
                 }
-            );
-            fields.Add(
-                "wind_strength", 
-                new Slider {
-                    label = "Wind Strength", 
-                    value = new ClampedFloatParameter(percentageClamped(SettingsSystem.Instance.strength), 0f, 100f), 
-                    percentage = true, 
-                    unit = "%"
-                }
-            );
-            fields.Add(
-                "wind_strength_variance", 
-                new Slider {
-                    label = "Wind Strength Variance", 
-                    value = new ClampedFloatParameter(percentageClamped(SettingsSystem.Instance.strengthVariance), 0f, 100f),
-                    percentage = true, 
-                    unit = "%"
-                }
-            );
-            fields.Add(
-                "wind_strength_variance_period", 
-                new Slider {
-                    label = "Wind Strength Variance Period", 
-                    value = SettingsSystem.Instance.strengthVariancePeriod,
-                    percentage = false, 
-                    unit = "s",
-                }
-            );
-
-            fields.Add(
-                "wind_direction", 
-                new Slider {
-                    label = "Wind Direction", 
-                    value = SettingsSystem.Instance.direction, 
-                    percentage = false, 
-                    unit = "°"
-                }
-            );
-            fields.Add(
-                "wind_direction_variance", 
-                new Slider {
-                    label = "Wind Direction Variance", 
-                    value = new ClampedFloatParameter(percentageClamped(SettingsSystem.Instance.directionVariance), 0f, 100f), 
-                    percentage = true, 
-                    unit = "%",
-                }
-            );
-            fields.Add(
-                "wind_direction_variance_period", 
-                new Slider {
-                    label = "Wind Direction Variance Period", 
-                    value = SettingsSystem.Instance.directionVariancePeriod,
-                    percentage = false, 
-                    unit = "s",
-                }
-            );
+            };
             return fields;
 
         }
 
-        // TODO make these setters more dynamic, we shouldn't need two mappings between field key and value get/set
         private void SetBoolValue(string key, bool value) {
-            switch (key) {
-                case "disable_wind":
-                    SettingsSystem.Instance.disableAllWind = value;
-                    break;
-            }
+            // TODO Make this more safe
+            var field = (Checkbox)fields.Get(key);
+            field.setChecked(value);
         }
 
-        private void SetValue(string key, float value) {
-            switch (key) {
-                case "wind_strength":
-                    SettingsSystem.Instance.strength.value = setClampedValuePercent(SettingsSystem.Instance.strength, value);
-                    break;
-
-                case "wind_strength_variance":
-                    SettingsSystem.Instance.strengthVariance.value = setClampedValuePercent(SettingsSystem.Instance.strengthVariance, value);
-                    break;
-
-                case "wind_strength_variance_period":
-                    SettingsSystem.Instance.strengthVariancePeriod.value = value;
-                    break;
-
-                case "wind_direction":
-                    SettingsSystem.Instance.direction.value = value;
-                    break;
-
-                case "wind_direction_variance":
-                    SettingsSystem.Instance.directionVariance.value = setClampedValuePercent(SettingsSystem.Instance.directionVariance, value);
-                    break;
-
-                case "wind_direction_variance_period":
-                    SettingsSystem.Instance.directionVariancePeriod.value = value;
-                    break;
-
-            }
+        private void SetFloatValue(string key, float value) {
+            // TODO Make this more safe
+            var field = (Slider)fields.Get(key);
+            field.setValue(value);
         }
 
         private float percentageClamped(ClampedFloatParameter cfp) {
@@ -195,36 +130,5 @@ namespace TreeWindController.Systems {
         }
     }
 
-    public class MyDictionaryWriter<K, V> : IWriter<IDictionary<K, V>> {
-        [NotNull]
-        private readonly IWriter<K> m_KeyWriter;
 
-        [NotNull]
-        private readonly IWriter<V> m_ValueWriter;
-
-        public MyDictionaryWriter(IWriter<K> keyWriter = null, IWriter<V> valueWriter = null) {
-            m_KeyWriter = keyWriter ?? ValueWriters.Create<K>();
-            m_ValueWriter = valueWriter ?? ValueWriters.Create<V>();
-        }
-
-        public void Write(IJsonWriter writer, IDictionary<K, V> value) {
-            if (value != null) {
-                writer.MapBegin(value.Count);
-                foreach (KeyValuePair<K, V> item in value) {
-                    m_KeyWriter.Write(writer, item.Key);
-
-                    if (item.Value is IDictionary<K, V> nestedDictionary) {
-                        Write(writer, nestedDictionary);
-                    } else {
-                        m_ValueWriter.Write(writer, item.Value);
-                    }
-                }
-                writer.MapEnd();
-                return;
-            }
-
-            writer.WriteNull();
-            throw new ArgumentNullException("value", "Null passed to non-nullable dictionary writer");
-        }
-    }
 }

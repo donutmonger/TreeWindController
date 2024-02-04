@@ -1,7 +1,7 @@
 DEV_INSTALL_DIR = "C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\BepInEx\plugins\TreeWindController"
 
 build-ui:
-	npx esbuild ui/main.jsx --bundle --outfile=dist/bundle.js
+	npx esbuild frontend/main.jsx --bundle --outfile=dist/bundle.js
 
 build: build-ui
 	dotnet build

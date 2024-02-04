@@ -29,20 +29,4 @@ namespace TreeWindController.Patches {
             return true;
         }
     }
-
-    [HarmonyPatch(typeof(WindControl), "UpdateCPUData")]
-    public class WindControl_UpdateCPUDataPatch {
-
-        public static bool Prefix(WindControl __instance, WindVolumeComponent __1) {
-            // TODO this is kind of gross, is there a nicer way to pass this ref through to the patch?
-            var settings = SettingsSystem.Instance;
-            if (settings == null) {
-                return true;
-            }
-
-            settings.updateWindVolumeComponent(__1);
-            // Pass through to the original method
-            return true;
-        }
-    }
 }
