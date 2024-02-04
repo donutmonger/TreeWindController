@@ -53,7 +53,7 @@ namespace TreeWindController {
     }
 
     public class TreeWindControllerUI : UIExtension {
-        public new readonly string extensionID = "tree-wind-controller";
+        public new readonly string extensionID = SettingsUISystem.PanelID;
         public new readonly string extensionContent;
         public new readonly ExtensionType extensionType = ExtensionType.Panel;
 

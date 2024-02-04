@@ -12,9 +12,9 @@ using UnityEngine.UIElements.Collections;
 
 namespace TreeWindController.Systems {
     class SettingsUISystem : UISystemBase {
-        private ILog _log;
-        private string kGroup = "tree-wind-controller";
+        public static string PanelID = "tree-wind-controller";
 
+        private ILog _log;
         private Dictionary<string,IJsonWritable> _fields;
         private SettingsSystem _settings;
 
@@ -93,7 +93,7 @@ namespace TreeWindController.Systems {
 
             this.AddUpdateBinding(
                 new GetterValueBinding<Dictionary<string, IJsonWritable>>(
-                    this.kGroup,
+                    PanelID,
                     "get_values",
                     GetValues,
                     new NestedDictionaryWriter<string, IJsonWritable>(),
@@ -103,10 +103,10 @@ namespace TreeWindController.Systems {
             ); 
 
             this.AddBinding(
-                new TriggerBinding<string,bool>(kGroup, "set_bool_value", new Action<string,bool>(SetBoolValue))
+                new TriggerBinding<string,bool>(PanelID, "set_bool_value", new Action<string,bool>(SetBoolValue))
             );
             this.AddBinding(
-                new TriggerBinding<string,float>(kGroup, "set_value", new Action<string,float>(SetFloatValue))
+                new TriggerBinding<string,float>(PanelID, "set_value", new Action<string,float>(SetFloatValue))
             );
         }
 

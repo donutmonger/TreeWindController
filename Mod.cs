@@ -61,7 +61,10 @@ namespace TreeWindController {
 
             // Add mod UI icons to UI resource handler.
             GameUIResourceHandler uiResourceHandler = GameManager.instance.userInterface.view.uiSystem.resourceHandler as GameUIResourceHandler;
-            uiResourceHandler?.HostLocationsMap.Add("tree-wind-controller", new System.Collections.Generic.List<string> { Path.GetDirectoryName(typeof(Plugin).Assembly.Location) + "/" });
+            uiResourceHandler?.HostLocationsMap.Add(
+                SettingsUISystem.PanelID,
+                [Path.GetDirectoryName(typeof(Plugin).Assembly.Location) + "/"]
+            );
         }
 
         /// <summary>

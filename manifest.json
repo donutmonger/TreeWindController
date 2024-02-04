@@ -1,9 +1,10 @@
 {
-  "name": "TreeWindController",
-  "version_number": "1.0",
-  "website_url": "https://example.org",
-  "description": "Allows you to control the wind that affects trees",
-  "dependencies": [
-    "BepInEx-BepInExPack-5.4.2100"
-  ]
+    "name": "TreeWindController",
+    "version_number": "0.1.0",
+    "website_url": "https://github.com/donutmonger/TreeWindController",
+    "description": "Control how the wind affects your trees, or disable it entirely. From complete calm to gale force winds, you're in command!",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2100",
+        "Cities2Modding-HookUI-0.3.9"
+    ]
 }

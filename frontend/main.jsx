@@ -74,7 +74,7 @@ const $TreeWindController = ({react}) => {
 window._$hookui.registerPanel({
     id: panelID,
     name: "Tree Wind Controller",
-    icon: "coui://" + panelID + "/logo.svg",
+    icon: "coui://" + panelID + "/icon.svg",
     component: $TreeWindController
 })
 
