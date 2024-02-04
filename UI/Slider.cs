@@ -18,7 +18,6 @@ namespace TreeWindController.UI {
             writer.PropertyName("label");
             writer.Write(label);
 
-            // TODO can ClampedFloatParameter just implement this itself?
             var value = getValue();
 
             writer.PropertyName("min");

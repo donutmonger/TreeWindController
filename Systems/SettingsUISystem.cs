@@ -15,7 +15,7 @@ namespace TreeWindController.Systems {
         private ILog _log;
         private string kGroup = "tree-wind-controller";
 
-        private Dictionary<string,IJsonWritable> fields;
+        private Dictionary<string,IJsonWritable> _fields;
         private SettingsSystem _settings;
 
         protected override void OnCreate() {
@@ -26,7 +26,7 @@ namespace TreeWindController.Systems {
 
             _settings = World.GetExistingSystemManaged<SettingsSystem>();
 
-            fields = new Dictionary<string, IJsonWritable> {
+            _fields = new Dictionary<string, IJsonWritable> {
                 {
                     "disable_wind",
                     new Checkbox {
@@ -39,8 +39,8 @@ namespace TreeWindController.Systems {
                     "wind_strength",
                     new Slider {
                         label = "Wind Strength",
-                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strength), 0f, 100f); }),
                         unit = "%",
+                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strength), 0f, 100f); }),
                         setValue = new Action<float>((float f) => { _settings.strength.value = setClampedValuePercent(_settings.strength, f); })
                     }
                 },
@@ -48,8 +48,8 @@ namespace TreeWindController.Systems {
                     "wind_strength_variance",
                     new Slider {
                         label = "Wind Strength Variance",
-                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strengthVariance), 0f, 100f); }),
                         unit = "%",
+                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strengthVariance), 0f, 100f); }),
                         setValue = new Action<float>((float f) => { _settings.strengthVariance.value = setClampedValuePercent(_settings.strengthVariance, f); })
                     }
                 },
@@ -57,8 +57,8 @@ namespace TreeWindController.Systems {
                     "wind_strength_variance_period",
                     new Slider {
                         label = "Wind Strength Variance Period",
-                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.strengthVariancePeriod; }),
                         unit = "s",
+                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.strengthVariancePeriod; }),
                         setValue = new Action<float>((float f) => { _settings.strengthVariancePeriod.value = f; })
                     }
                 },
@@ -66,8 +66,8 @@ namespace TreeWindController.Systems {
                     "wind_direction",
                     new Slider {
                         label = "Wind Direction",
-                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.direction; }),
                         unit = "°",
+                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.direction; }),
                         setValue = new Action<float>((float f) => { _settings.direction.value = f; })
                     }
                 },
@@ -75,8 +75,8 @@ namespace TreeWindController.Systems {
                     "wind_direction_variance",
                     new Slider {
                         label = "Wind Direction Variance",
-                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.directionVariance), 0f, 100f); }),
                         unit = "%",
+                        getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.directionVariance), 0f, 100f); }),
                         setValue = new Action<float>((float f) => { _settings.directionVariance.value = setClampedValuePercent(_settings.directionVariance, f); })
                     }
                 },
@@ -84,21 +84,21 @@ namespace TreeWindController.Systems {
                     "wind_direction_variance_period",
                     new Slider {
                         label = "Wind Direction Variance Period",
-                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.directionVariancePeriod; }),
                         unit = "s",
+                        getValue = new Func<ClampedFloatParameter>(() => { return _settings.directionVariancePeriod; }),
                         setValue = new Action<float>((float f) => { _settings.directionVariancePeriod.value = f; })
                     }
                 }
             };
 
-            // TODO look into EqualityComparer optional arg here, might help with static dict
             this.AddUpdateBinding(
                 new GetterValueBinding<Dictionary<string, IJsonWritable>>(
                     this.kGroup,
                     "get_values",
                     GetValues,
                     new NestedDictionaryWriter<string, IJsonWritable>(),
-                    new DictionaryEqualityComparer()
+                    // TODO equality detection can be based on the result of getChecked/getValue.
+                    new NeverEqualEqualityComparer<Dictionary<string,IJsonWritable>>()
                 )
             ); 
 
@@ -110,21 +110,25 @@ namespace TreeWindController.Systems {
             );
         }
 
-        // TODO why doesn't this work when just making the dictionary once on OnCreate?
         private Dictionary<string,IJsonWritable> GetValues() {
-            return fields;
+            return _fields;
         }
 
         private void SetBoolValue(string key, bool value) {
-            // TODO Make this more safe
-            var field = (Checkbox)fields.Get(key);
-            field.setChecked(value);
+            // TODO This, and the setter for float values, is a bit gross.
+            // There's probably a better covering interface to use over just
+            // IJsonWritable for UI elements.
+            try {
+                var field = (Checkbox)_fields.Get(key);
+                field.setChecked(value);
+            } catch (InvalidCastException) { }
         }
 
         private void SetFloatValue(string key, float value) {
-            // TODO Make this more safe
-            var field = (Slider)fields.Get(key);
-            field.setValue(value);
+            try {
+                var field = (Slider)_fields.Get(key);
+                field.setValue(value);
+            } catch (InvalidCastException) { }
         }
 
         private float percentageClamped(ClampedFloatParameter cfp) {
@@ -136,5 +140,13 @@ namespace TreeWindController.Systems {
         }
     }
 
+    internal class NeverEqualEqualityComparer<T> : EqualityComparer<T> {
+        public override bool Equals(T x, T y) {
+            return false;
+        }
 
+        public override int GetHashCode(T obj) {
+            return obj.GetHashCode();
+        }
+    }
 }

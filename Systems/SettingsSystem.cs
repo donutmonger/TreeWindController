@@ -10,7 +10,6 @@ using UnityEngine.Rendering;
 using Unity.Mathematics;
 
 namespace TreeWindController.Systems {
-    // TODO this doesn't need to be a system, it's just a settings holder and helper for applying changes to the WindVolumeComponent
     internal class SettingsSystem : GameSystemBase {
         private ILog _log;
 

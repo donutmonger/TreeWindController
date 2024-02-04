@@ -18,7 +18,8 @@ namespace TreeWindController.Patches {
     public class WindControl_SetGlobalPropertiesPatch {
 
         public static bool Prefix(WindControl __instance, CommandBuffer __0, WindVolumeComponent __1) {
-            // TODO this is kind of gross, is there a nicer way to pass this ref through to the patch?
+            // TODO Find a better way of grabbing the SettingsSystem. Doesn't
+            // look like anything in WindControl gives us a way to get systems.
             var settings = SettingsSystem.Instance;
             if (settings == null) {
                 return true;
