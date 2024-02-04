@@ -26,21 +26,6 @@ namespace TreeWindController.Systems {
 
             _settings = World.GetExistingSystemManaged<SettingsSystem>();
 
-            this.AddUpdateBinding(
-                new GetterValueBinding<Dictionary<string,IJsonWritable>>(this.kGroup, "get_values", GetValues,
-                new NestedDictionaryWriter<string, IJsonWritable>())
-            );
-
-            this.AddBinding(
-                new TriggerBinding<string,bool>(kGroup, "set_bool_value", new Action<string,bool>(SetBoolValue))
-            );
-            this.AddBinding(
-                new TriggerBinding<string,float>(kGroup, "set_value", new Action<string,float>(SetFloatValue))
-            );
-        }
-
-        // TODO why doesn't this work when just making the dictionary once on OnCreate?
-        private Dictionary<string,IJsonWritable> GetValues() {
             fields = new Dictionary<string, IJsonWritable> {
                 {
                     "disable_wind",
@@ -105,8 +90,29 @@ namespace TreeWindController.Systems {
                     }
                 }
             };
-            return fields;
 
+            // TODO look into EqualityComparer optional arg here, might help with static dict
+            this.AddUpdateBinding(
+                new GetterValueBinding<Dictionary<string, IJsonWritable>>(
+                    this.kGroup,
+                    "get_values",
+                    GetValues,
+                    new NestedDictionaryWriter<string, IJsonWritable>(),
+                    new DictionaryEqualityComparer()
+                )
+            ); 
+
+            this.AddBinding(
+                new TriggerBinding<string,bool>(kGroup, "set_bool_value", new Action<string,bool>(SetBoolValue))
+            );
+            this.AddBinding(
+                new TriggerBinding<string,float>(kGroup, "set_value", new Action<string,float>(SetFloatValue))
+            );
+        }
+
+        // TODO why doesn't this work when just making the dictionary once on OnCreate?
+        private Dictionary<string,IJsonWritable> GetValues() {
+            return fields;
         }
 
         private void SetBoolValue(string key, bool value) {
