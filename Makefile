@@ -1,7 +1,7 @@
 DLL_OUT_DIR = "bin\Debug\netstandard2.1"
 DEV_INSTALL_DIR = "C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\BepInEx\plugins\TreeWindController"
 PKG_DIR = "dist\pkg"
-THUNDERSTORE_OUT_ZIP = "dist\TreeWindController_thunderstore.zip"
+THUNDERSTORE_ZIP = "dist\TreeWindController_thunderstore.zip"
 
 clean-pkg:
 	IF exist $(PKG_DIR) rmdir /s /q $(PKG_DIR)
@@ -18,14 +18,14 @@ build: build-ui
 pkg: ensure-pkg-dir build
 	copy $(DLL_OUT_DIR)\0Harmony.dll $(PKG_DIR)
 	copy $(DLL_OUT_DIR)\TreeWindController.dll $(PKG_DIR)
-	copy frontend\icon.svg $(PKG_DIR)
+	copy frontend\wind.svg $(PKG_DIR)
 	copy manifest.json $(PKG_DIR)
 	copy icon.png $(PKG_DIR)
 	copy README.md $(PKG_DIR)
 
 pkg-thunderstore: clean-pkg pkg
-	IF exist $(THUNDERSTORE_OUT_ZIP) del $(THUNDERSTORE_OUT_ZIP)
-	powershell Compress-Archive -Path "$(PKG_DIR)\*" -DestinationPath $(THUNDERSTORE_OUT_ZIP)
+	IF exist $(THUNDERSTORE_ZIP) del $(THUNDERSTORE_ZIP)
+	powershell Compress-Archive -Path "$(PKG_DIR)\*" -DestinationPath $(THUNDERSTORE_ZIP)
 
 dev-install: pkg
 	IF not exist $(DEV_INSTALL_DIR) mkdir $(DEV_INSTALL_DIR)
