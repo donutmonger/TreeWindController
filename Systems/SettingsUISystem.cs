@@ -41,7 +41,7 @@ namespace TreeWindController.Systems {
                         label = "Wind Strength",
                         unit = "%",
                         getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strength), 0f, 100f); }),
-                        setValue = new Action<float>((float f) => { _settings.strength.value = setClampedValuePercent(_settings.strength, f); })
+                        setValue = new Action<float>((float f) => { _settings.strength.value = clampedValuePercent(_settings.strength, f); })
                     }
                 },
                 {
@@ -50,7 +50,7 @@ namespace TreeWindController.Systems {
                         label = "Wind Strength Variance",
                         unit = "%",
                         getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.strengthVariance), 0f, 100f); }),
-                        setValue = new Action<float>((float f) => { _settings.strengthVariance.value = setClampedValuePercent(_settings.strengthVariance, f); })
+                        setValue = new Action<float>((float f) => { _settings.strengthVariance.value = clampedValuePercent(_settings.strengthVariance, f); })
                     }
                 },
                 {
@@ -77,7 +77,7 @@ namespace TreeWindController.Systems {
                         label = "Wind Direction Variance",
                         unit = "%",
                         getValue = new Func<ClampedFloatParameter>(() => { return new ClampedFloatParameter(percentageClamped(_settings.directionVariance), 0f, 100f); }),
-                        setValue = new Action<float>((float f) => { _settings.directionVariance.value = setClampedValuePercent(_settings.directionVariance, f); })
+                        setValue = new Action<float>((float f) => { _settings.directionVariance.value = clampedValuePercent(_settings.directionVariance, f); })
                     }
                 },
                 {
@@ -135,7 +135,7 @@ namespace TreeWindController.Systems {
             return 100f * (cfp.value - cfp.min) / (cfp.max - cfp.min);
         }
 
-        private float setClampedValuePercent(ClampedFloatParameter cfp, float percent) {
+        private float clampedValuePercent(ClampedFloatParameter cfp, float percent) {
             return cfp.min + percent / 100f * (cfp.max - cfp.min);
         }
     }

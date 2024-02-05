@@ -3,6 +3,8 @@ DEV_INSTALL_DIR = "C:\Program Files (x86)\Steam\steamapps\common\Cities Skylines
 PKG_DIR = "dist\pkg"
 THUNDERSTORE_ZIP = "dist\TreeWindController_thunderstore.zip"
 
+all: build
+
 clean-pkg:
 	IF exist $(PKG_DIR) rmdir /s /q $(PKG_DIR)
 
